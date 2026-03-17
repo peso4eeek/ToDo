@@ -12,6 +12,7 @@ using Thinktecture.AspNetCore.ModelBinding;
 using Thinktecture.Text.Json.Serialization;
 using ToDoList;
 using ToDoList.Auth;
+using ToDoList.Infrastructure;
 using ToDoList.Task;
 using ToDoList.User;
 using TaskStatus = ToDoList.Task.TaskStatus;
@@ -83,6 +84,12 @@ app.MapScalarApiReference("/scalar", options =>
 {
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ToDoContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();

@@ -4,7 +4,7 @@ using ToDoList.Task;
 using ToDoList.User;
 using TaskStatus = System.Threading.Tasks.TaskStatus;
 
-namespace ToDoList;
+namespace ToDoList.Infrastructure;
 
 public class ToDoContext: DbContext
 {

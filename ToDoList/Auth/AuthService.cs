@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using ToDoList.Infrastructure;
 using ToDoList.User;
 
 namespace ToDoList.Auth;
