@@ -11,8 +11,8 @@
 
 **Шаг 1. Клонирование репозитория**
 ```bash
-git clone https://github.com/ВАШ_НИК/ВАШ_РЕПОЗИТОРИЙ.git
-cd ВАШ_РЕПОЗИТОРИЙ
+git clone https://github.com/peso4eeek/ToDo.git
+cd ToDo
 ```
 
 **Шаг 2. Настройка переменных окружения**
