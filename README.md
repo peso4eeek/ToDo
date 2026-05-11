@@ -109,4 +109,4 @@ dotnet format --verify-no-changes
 ```bash
 dotnet test /p:CollectCoverage=true /p:Threshold=50 /p:ThresholdType=line
 ```
-Если покрытие ниже 50%, команда завершится с ошибкой (как и в CI/CD).
+Если покрытие ниже 50% или тесты не проходят, команда завершится с ошибкой (как и в CI/CD).
