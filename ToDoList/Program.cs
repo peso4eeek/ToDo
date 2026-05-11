@@ -50,6 +50,19 @@ else
         options.UseNpgsql(dataSource));
 }
 
+if (builder.Environment.IsEnvironment("Testing"))
+{
+    const string testingJwtKeyFallback = "known-fallback-jwt-key-for-tests-32b!!";
+    var fromEnv = Environment.GetEnvironmentVariable("JWT_TEST_SECRET_KEY")?.Trim();
+    var fromConfig = builder.Configuration["Auth:Key"]?.Trim();
+    var resolved = !string.IsNullOrEmpty(fromEnv)
+        ? fromEnv
+        : !string.IsNullOrEmpty(fromConfig)
+            ? fromConfig
+            : testingJwtKeyFallback;
+    builder.Configuration["Auth:Key"] = resolved;
+}
+
 var authSection = builder.Configuration.GetSection("Auth");
 
 builder.Services.Configure<AuthOptions>(authSection);
