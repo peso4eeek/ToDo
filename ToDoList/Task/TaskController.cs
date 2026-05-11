@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+
 using ToDoList.User;
 
 namespace ToDoList.Task;
@@ -10,7 +12,7 @@ namespace ToDoList.Task;
 [ApiController]
 [Authorize]
 [Route("api/task")]
-public class TaskController(TaskService taskService, UserService userService): ControllerBase
+public class TaskController(TaskService taskService, UserService userService) : ControllerBase
 {
     [HttpPost]
     public async Task<Results<Ok<Task>, BadRequest<string>>> Create([FromBody] CreateTaskRequest request)
@@ -21,7 +23,7 @@ public class TaskController(TaskService taskService, UserService userService): C
         var res = await taskService.Create(request, user.Value);
         return res.IsFailure ? TypedResults.BadRequest("Can not create task") : TypedResults.Ok(res.Value);
     }
-    
+
     [HttpDelete("{id}")]
     public async Task<Results<Ok, BadRequest<string>>> Delete([FromRoute] TaskId id)
     {
@@ -29,7 +31,7 @@ public class TaskController(TaskService taskService, UserService userService): C
         var res = await taskService.Delete(id, userId);
         return res.IsFailure ? TypedResults.BadRequest(res.Error) : TypedResults.Ok();
     }
-    
+
     [HttpGet("all-user")]
     public async Task<Results<Ok<List<Task>>, BadRequest<string>>> GetAllUserTask()
     {

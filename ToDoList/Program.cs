@@ -1,20 +1,27 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using Npgsql;
+
 using Scalar.AspNetCore;
+
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+
 using Thinktecture.AspNetCore.ModelBinding;
 using Thinktecture.Text.Json.Serialization;
+
 using ToDoList;
 using ToDoList.Auth;
 using ToDoList.Infrastructure;
 using ToDoList.Task;
 using ToDoList.User;
+
 using TaskStatus = ToDoList.Task.TaskStatus;
 
 Log.Logger = new LoggerConfiguration()
@@ -25,13 +32,23 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-var dataSourceBuilder = new  NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
-dataSourceBuilder.MapEnum<TaskStatus>("task_status"); 
-dataSourceBuilder.MapEnum<TaskPriority>("task_priority");
-var dataSource = dataSourceBuilder.Build();
 
-builder.Services.AddDbContext<ToDoContext>(options =>
-    options.UseNpgsql(dataSource));
+if (builder.Environment.IsEnvironment("Testing"))
+{
+    var inMemoryName = builder.Configuration["Testing:InMemoryDbName"] ?? "ToDoListTests";
+    builder.Services.AddDbContext<ToDoContext>(options =>
+        options.UseInMemoryDatabase(inMemoryName));
+}
+else
+{
+    var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
+    dataSourceBuilder.MapEnum<TaskStatus>("task_status");
+    dataSourceBuilder.MapEnum<TaskPriority>("task_priority");
+    var dataSource = dataSourceBuilder.Build();
+
+    builder.Services.AddDbContext<ToDoContext>(options =>
+        options.UseNpgsql(dataSource));
+}
 
 var authSection = builder.Configuration.GetSection("Auth");
 
@@ -48,8 +65,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
     });
-builder.Services.AddAuthorization(); 
-builder.Services.AddCors();
+builder.Services.AddAuthorization();
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
@@ -73,6 +92,7 @@ builder.Services.AddControllers(options =>
             .Add(new ThinktectureJsonConverterFactory());
     });
 
+
 builder.Services.AddSingleton<JWTGenerator>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddTransient<JwtSecurityTokenHandler>();
@@ -85,14 +105,20 @@ app.MapScalarApiReference("/scalar", options =>
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ToDoContext>();
-    dbContext.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ToDoContext>();
+        dbContext.Database.Migrate();
+    }
 }
 
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowAll");
 app.UseAuthentication();
@@ -106,3 +132,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpLogging();
 app.MapControllers();
 app.Run();
+
+public partial class Program;

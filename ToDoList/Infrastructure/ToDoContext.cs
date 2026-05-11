@@ -1,15 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
+
 using Thinktecture;
+
 using ToDoList.Task;
 using ToDoList.User;
-using TaskStatus = System.Threading.Tasks.TaskStatus;
+
+using TaskStatus = ToDoList.Task.TaskStatus;
 
 namespace ToDoList.Infrastructure;
 
-public class ToDoContext: DbContext
+public class ToDoContext : DbContext
 {
-    
-    public ToDoContext (DbContextOptions<ToDoContext> options): base(options)
+
+    public ToDoContext(DbContextOptions<ToDoContext> options) : base(options)
     {
     }
     public virtual DbSet<User.User> Users { get; set; }
@@ -19,8 +24,11 @@ public class ToDoContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.AddThinktectureValueConverters();
-        modelBuilder.HasPostgresEnum<TaskStatus>("task_status");
-        modelBuilder.HasPostgresEnum<TaskPriority>("task_priority");
+        if (Database.IsNpgsql())
+        {
+            modelBuilder.HasPostgresEnum<TaskStatus>("task_status");
+            modelBuilder.HasPostgresEnum<TaskPriority>("task_priority");
+        }
         modelBuilder.Entity<User.User>(entity =>
         {
             entity.ToTable("users");
@@ -63,7 +71,7 @@ public class ToDoContext: DbContext
             entity.Property(t => t.DeletedAt).HasColumnName("deleted_at");
             entity.Property(t => t.Status).HasColumnName("status").IsRequired();
             entity.Property(t => t.Priority).HasColumnName("priority").IsRequired();
-            
+
             entity.HasQueryFilter(t => t.DeletedAt == null);
         });
     }

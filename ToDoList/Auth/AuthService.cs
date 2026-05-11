@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
 using ToDoList.Infrastructure;
 using ToDoList.User;
 
@@ -34,8 +36,8 @@ public class AuthService(IOptions<AuthOptions> options, ToDoContext dbContext, J
         {
             return Result.Failure<AuthData>("Invalid username or password");
         }
-        
-        if (!BCrypt.Net.BCrypt.Verify(loginData.Password, user.PassHash ))
+
+        if (!BCrypt.Net.BCrypt.Verify(loginData.Password, user.PassHash))
         {
             return Result.Failure<AuthData>("Invalid username or password");
         }
@@ -58,7 +60,7 @@ public class AuthService(IOptions<AuthOptions> options, ToDoContext dbContext, J
     public async Task<Result<AuthData>> Refresh(RefreshToken refreshToken)
     {
         var session = await dbContext.Sessions.FirstOrDefaultAsync(s => s.RefreshToken == refreshToken);
-        if (session == null) 
+        if (session == null)
         {
             return Result.Failure<AuthData>("Invalid refresh token");
         }
@@ -66,9 +68,9 @@ public class AuthService(IOptions<AuthOptions> options, ToDoContext dbContext, J
         session.RefreshToken = newRefreshToken;
         await dbContext.SaveChangesAsync();
         await dbContext.Entry(session).ReloadAsync();
-        
+
         var accessToken = jwtGenerator.GenerateAccessToken(session, options.Value);
-        return Result.Success(new AuthData(accessToken, refreshToken));
+        return Result.Success(new AuthData(accessToken, newRefreshToken));
     }
 }
 

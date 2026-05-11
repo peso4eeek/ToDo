@@ -6,11 +6,11 @@ namespace ToDoList.User;
 public readonly partial struct UserId;
 public class User
 {
-    public UserId UserId { get; init; }
-    
+    public UserId UserId { get; init; } = UserId.Create(Guid.NewGuid());
+
     public required string Name { get; set; }
-    
+
     public required string PassHash { get; set; }
-    
+
     public string Email { get; set; } = string.Empty;
 }

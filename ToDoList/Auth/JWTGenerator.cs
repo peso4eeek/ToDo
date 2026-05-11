@@ -1,8 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+
 using Microsoft.IdentityModel.Tokens;
+
 using Thinktecture;
+
 using ToDoList.User;
 
 namespace ToDoList.Auth;
@@ -13,7 +16,7 @@ public class JWTGenerator(JwtSecurityTokenHandler tokenHandler)
     {
         var now = DateTime.UtcNow;
         var claims = new List<Claim>([
-            new Claim("UserId",  session.UserId.ToString()), 
+            new Claim("UserId",  session.UserId.ToString()),
             new Claim("SessionId",  session.SessionId.ToString())
         ]);
         var jwt = new JwtSecurityToken(
@@ -35,12 +38,14 @@ public class JWTGenerator(JwtSecurityTokenHandler tokenHandler)
             rng.GetBytes(randomNumber);
             return RefreshToken.Create(Convert.ToBase64String(randomNumber));
         }
-        
+
     }
 }
 
 
 [ValueObject<string>]
+[KeyMemberEqualityComparer<ComparerAccessors.StringOrdinalIgnoreCase, string>]
+[KeyMemberComparer<ComparerAccessors.StringOrdinalIgnoreCase, string>]
 public readonly partial struct AccessToken
 {
     static partial void ValidateFactoryArguments(ref ValidationError? validationError, ref string value)
@@ -52,4 +57,6 @@ public readonly partial struct AccessToken
     }
 }
 [ValueObject<string>]
+[KeyMemberEqualityComparer<ComparerAccessors.StringOrdinalIgnoreCase, string>]
+[KeyMemberComparer<ComparerAccessors.StringOrdinalIgnoreCase, string>]
 public readonly partial struct RefreshToken;

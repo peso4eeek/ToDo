@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -8,13 +9,13 @@ namespace ToDoList.Auth;
 [ApiController]
 
 [Route("api/auth")]
-public class AuthController(AuthService authService): ControllerBase
+public class AuthController(AuthService authService) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<Results<Ok<AuthData>, BadRequest<string>>> Login([FromBody] LoginRequest request)
     {
         var authData = await authService.Login(request);
-        
+
         return authData.IsSuccess ? TypedResults.Ok(authData.Value) : TypedResults.BadRequest(authData.Error);
     }
 
@@ -32,4 +33,4 @@ public class AuthController(AuthService authService): ControllerBase
         var res = await authService.Refresh(token);
         return res.IsSuccess ? TypedResults.Ok(res.Value) : TypedResults.BadRequest(res.Error);
     }
- }
+}
