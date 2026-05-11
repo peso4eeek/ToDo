@@ -2,5 +2,6 @@ namespace ToDoListTests;
 
 internal static class TestAuth
 {
-    internal const string SigningKey = "unit-test-signing-key-at-least-32-bytes!!";
+    internal static string SigningKey => Environment.GetEnvironmentVariable("JWT_TEST_SECRET_KEY")
+        ?? "default-signing-key-if-missing";
 }
