@@ -45,8 +45,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Set JWT_SECRET_KEY environment variable
-        run: echo "JWT_SECRET_KEY=${{ secrets.JWT_TEST_SECRET_KEY }}" >> $GITHUB_ENV
+      - name: Set JWT_TEST_SECRET_KEY environment variable
+        run: echo "JWT_TEST_SECRET_KEY=${{ secrets.JWT_TEST_SECRET_KEY }}" >> $GITHUB_ENV
         
       - name: Run Tests with Coverage
         run: dotnet test --configuration Release /p:CollectCoverage=true /p:Threshold=50 /p:ThresholdType=line /p:CoverletOutputFormat=cobertura
