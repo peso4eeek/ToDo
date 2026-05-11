@@ -99,6 +99,7 @@ builder.Services.AddTransient<JwtSecurityTokenHandler>();
 builder.Services.AddTransient<TaskService>();
 builder.Services.AddTransient<UserService>();
 
+
 var app = builder.Build();
 app.MapScalarApiReference("/scalar", options =>
 {
