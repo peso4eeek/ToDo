@@ -10,7 +10,7 @@ namespace ToDoList.Task;
 public readonly partial struct TaskId;
 public class Task
 {
-    public TaskId TaskId { get; init; } = TaskId.Create(Guid.NewGuid());
+    public TaskId TaskId { get; init; }
 
     public required UserId OwnerId { get; init; }
 
